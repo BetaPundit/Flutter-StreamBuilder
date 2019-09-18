@@ -12,8 +12,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   SharedPreferences sharedPreferences;
-  String advice = '';
-  int counter = 0;
+  String _advice = '';
+  int _counter = 0;
+  bool _isButtonDisabled = false;
 
   @override
   void initState() {
@@ -33,8 +34,8 @@ class _HomeState extends State<Home> {
       }
 
       setState(() {
-        advice = savedAdvice;
-        counter = savedCounter;
+        _advice = savedAdvice;
+        _counter = savedCounter;
       });
     });
   }
@@ -52,29 +53,31 @@ class _HomeState extends State<Home> {
             padding: EdgeInsets.all(32.0),
             child: Column(
               children: <Widget>[
-                // Text 1
+                // Text 1 - advice
                 Container(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    '$advice',
+                    '$_advice',
                     style: TextStyle(
                       fontSize: 20.0,
                     ),
                   ),
                 ),
 
-                // Text 2
+                // Text 2 - counter
                 Text(
-                  '$counter',
+                  '$_counter',
                   style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
         ),
+
+        // Floating button
         floatingActionButton: FloatingActionButton(
-          child: Text('Fetch'),
-          onPressed: _fetchPost,
+          child: Icon(Icons.file_download),
+          onPressed: _isButtonDisabled ? null : _fetchPost,
         ),
       ),
     );
@@ -85,23 +88,24 @@ class _HomeState extends State<Home> {
     final response = await http.get(url);
     dynamic body = json.decode(response.body);
 
+    // If server returns an OK response, parse the JSON.
     if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON.
       print(response.body);
       setState(() {
-        advice = body['slip']['advice'];
-        counter += 1;
+        _advice = body['slip']['advice'];
+        _counter += 1;
       });
 
       // get SharedPrefrence Instance
       final prefs = await SharedPreferences.getInstance();
       // set value
-      prefs.setString('advice', advice);
-      prefs.setInt('counter', counter);
-    } else {
-      // If that response was not OK, throw an error.
-      print('Failed to load post');
+      prefs.setString('advice', _advice);
+      prefs.setInt('counter', _counter);
+    }
+    // If that response was not OK, throw an error.
+    else {
       // throw Exception('Failed to load post');
+      print('Failed to load post');
     }
   }
 }
