@@ -15,6 +15,8 @@ class _HomeState extends State<Home> {
   String _advice = '';
   int _counter = 0;
   bool _isButtonDisabled = false;
+  Color _adviceColor = Colors.black;
+  Color _actionColor = Colors.blue;
 
   @override
   void initState() {
@@ -60,6 +62,7 @@ class _HomeState extends State<Home> {
                     '$_advice',
                     style: TextStyle(
                       fontSize: 20.0,
+                      color: _adviceColor,
                     ),
                   ),
                 ),
@@ -75,17 +78,35 @@ class _HomeState extends State<Home> {
         ),
 
         // Floating button
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.file_download),
-          onPressed: _isButtonDisabled ? null : _fetchPost,
+        floatingActionButton: AbsorbPointer(
+          absorbing: _isButtonDisabled,
+          child: FloatingActionButton(
+            child: _isButtonDisabled
+                ? CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  )
+                : Icon(Icons.file_download),
+            onPressed: _fetchPost,
+            backgroundColor: _actionColor,
+          ),
         ),
       ),
     );
   }
 
   _fetchPost() async {
+    setState(() {
+      _isButtonDisabled = true;
+      _actionColor = Colors.blue;
+    });
     final url = 'https://api.adviceslip.com/advice';
     final response = await http.get(url);
+
+    setState(() {
+      _isButtonDisabled = false;
+      _actionColor = Colors.blue;
+    });
+
     dynamic body = json.decode(response.body);
 
     // If server returns an OK response, parse the JSON.
@@ -101,11 +122,14 @@ class _HomeState extends State<Home> {
       // set value
       prefs.setString('advice', _advice);
       prefs.setInt('counter', _counter);
-    }
+    } else {
     // If that response was not OK, throw an error.
-    else {
       // throw Exception('Failed to load post');
       print('Failed to load post');
+      setState(() {
+        _advice = "Something's Wrong!";
+        _adviceColor = Colors.red[800];
+      });
     }
   }
 }
