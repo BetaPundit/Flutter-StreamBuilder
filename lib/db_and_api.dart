@@ -44,6 +44,6 @@ class OnlineApiImplementation extends OnlineAPI {
     if (response.statusCode == 200) {
       return response.body;
     }
-    throw "Unhandled expection - Failed fetching from api";
+    throw "Unhandled exception - Failed fetching from api";
   }
 }
