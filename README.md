@@ -1,6 +1,6 @@
 # Stream builder implementation
 
-A Flutter project to show the implementation on StreamBuilder widget.
+A Flutter project to show the implementation of StreamBuilder widget.
 
 ## Getting Started
 
